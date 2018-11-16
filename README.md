@@ -1,4 +1,4 @@
-# Elmish performance test(s)
+# Elmish performance tests
 
 ```sh
 cd src
