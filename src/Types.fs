@@ -1,18 +1,11 @@
 module App.Types
 
-type Direction =
-  | Ascending
-  | Descending
+open App.Global
 
 type Msg =
-  | ChangeSortDirection
-
-type Col = string
-type Key = string
-
-type Row = Key * Col array
+  | TableMsg of Table.Types.Msg
 
 type Model = {
-  direction : Direction
-  rows : Row array
-}
+    CurrentPage : Page
+    Table : Table.Types.Model
+  }

@@ -3,6 +3,13 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <!-- Global to the app -->
+    <Compile Include="Global.fs" />
+    <!-- Table -->
+    <Compile Include="Table/Types.fs" />
+    <Compile Include="Table/State.fs" />
+    <Compile Include="Table/Views.fs" />
+    <!--  App -->
     <Compile Include="Types.fs" />
     <Compile Include="State.fs" />
     <Compile Include="Views.fs" />

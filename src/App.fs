@@ -1,34 +1,23 @@
-module App.View
+module App
 
 open Fable.Core.JsInterop
-open Fable.Helpers.React
-open Fable.Helpers.React.Props
 
 open Elmish
 open Elmish.React
+open Elmish.Browser.Navigation
+open Elmish.Browser.UrlParser
 
-open Types
 open App.State
+open App.Views
 
 importAll "../sass/main.sass"
-
-let view model dispatch =
-  div
-    []
-    [ div
-        [ ClassName "section" ]
-        [ div
-            [ ClassName "container" ]
-            [ div
-                [ ]
-                [ button [ ClassName "button" ; OnClick (fun _ -> dispatch ChangeSortDirection) ] [ str "Sort" ]
-                  App.Views.renderTable model ] ] ] ]
 
 open Elmish.Debug
 open Elmish.HMR
 
 // App
 Program.mkProgram init update view
+|> Program.toNavigable (parseHash pageParser) urlUpdate
 #if DEBUG
 |> Program.withDebugger
 #endif

@@ -22,7 +22,7 @@ console.log("Bundling for " + (isProduction ? "production" : "development") + ".
 
 module.exports = {
     devtool: isProduction ? undefined : "source-map",
-    entry: resolve('./src/test.fsproj'),
+    entry: resolve('./src/App.fsproj'),
     output: {
         filename: 'bundle.js',
         path: resolve('./public'),
