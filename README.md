@@ -1,9 +1,12 @@
 # Elmish performance experiments
 
+To run the project:
+
 ```sh
+yarn install
 cd src
 dotner restore
 dotnet fable yarn-run start
 ```
 
-Open: http://localhost:8080/
+Then visit: http://localhost:8080/
