@@ -9,6 +9,7 @@ open App.State
 open App.Views
 
 importAll "../sass/main.sass"
+importAll "./Components/CollapsibleTree.scss"
 
 open Elmish.Debug
 open Elmish.HMR

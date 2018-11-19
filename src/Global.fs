@@ -1,7 +1,10 @@
 module App.Global
 
-type Page = SortableTable
+type Page =
+    | SortableTable
+    | CollapsibleTree
 
 let toHash page =
     match page with
-    | SortableTable -> "#table"
+    | SortableTable -> "#sortable-table"
+    | CollapsibleTree -> "#collapsible-tree"

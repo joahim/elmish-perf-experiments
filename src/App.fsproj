@@ -5,10 +5,17 @@
   <ItemGroup>
     <!-- Global to the app -->
     <Compile Include="Global.fs" />
-    <!-- Table -->
-    <Compile Include="Table/Types.fs" />
-    <Compile Include="Table/State.fs" />
-    <Compile Include="Table/Views.fs" />
+    <!-- CollapsibleTree -->
+    <Compile Include="Components/CollapsibleTree.fs" />
+    <!-- SortableTable -->
+    <Compile Include="CollapsibleTree/Data.fs" />
+    <Compile Include="CollapsibleTree/Types.fs" />
+    <Compile Include="CollapsibleTree/State.fs" />
+    <Compile Include="CollapsibleTree/Views.fs" />
+    <!-- SortableTable -->
+    <Compile Include="SortableTable/Types.fs" />
+    <Compile Include="SortableTable/State.fs" />
+    <Compile Include="SortableTable/Views.fs" />
     <!--  App -->
     <Compile Include="Types.fs" />
     <Compile Include="State.fs" />

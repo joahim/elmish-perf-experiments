@@ -18,12 +18,16 @@ let renderMenuItem (label : string) (page : Page) (currentPage : Page) =
 let renderMenu currentPage =
     aside [ ClassName "menu" ] 
         [ ul [ ClassName "menu-list" ] 
-              [ renderMenuItem "Sortable Table" SortableTable currentPage ] ]
+              [ renderMenuItem "Sortable table" SortableTable currentPage
+                renderMenuItem "Collapsible tree" CollapsibleTree currentPage ] ]
 
 let view model dispatch =
     let pageHtml page =
         match page with
         | SortableTable -> Table.Views.view model.Table (TableMsg >> dispatch)
+        | CollapsibleTree -> 
+            CollapsibleTree.Views.view model.CollapsibleTree 
+                (CollapsibleTreeMsg >> dispatch)
     div [] 
         [ div [ ClassName "navbar-bg" ] 
               [ div [ ClassName "container" ] [ renderNavbar ] ]
