@@ -1,4 +1,4 @@
-# Elmish performance experiments
+# Elmish playground
 
 To run the project:
 
