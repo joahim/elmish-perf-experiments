@@ -50,7 +50,7 @@ function renderTree(svgRoot, data) {
         .attr("width", width)
         .attr("height", height)
         .attr("viewBox", [-margin.left, -margin.top, width, dx])
-        .style("font", "10px sans-serif")
+        .style("font", "12px sans-serif")
         .style("user-select", "none")
         .call(
             d3.zoom()

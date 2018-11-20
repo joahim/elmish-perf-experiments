@@ -9,7 +9,7 @@ let renderNavbar =
     nav [ ClassName "nav" ] 
         [ div [ ClassName "nav-left" ] 
               [ h1 [ ClassName "nav-item is-brand title is-4" ] 
-                    [ str "Elmish experiments" ] ] ]
+                    [ str "Elmish playground" ] ] ]
 
 let renderMenuItem (label : string) (page : Page) (currentPage : Page) =
     li [] [ a [ classList [ "is-active", page = currentPage ]
