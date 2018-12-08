@@ -19,7 +19,8 @@ let renderMenu currentPage =
     aside [ ClassName "menu" ] 
         [ ul [ ClassName "menu-list" ] 
               [ renderMenuItem "Sortable table" SortableTable currentPage
-                renderMenuItem "Collapsible tree" CollapsibleTree currentPage ] ]
+                renderMenuItem "Collapsible tree" CollapsibleTree currentPage
+                renderMenuItem "Adjacency matrix" AdjacencyMatrix currentPage ] ]
 
 let view model dispatch =
     let pageHtml page =
@@ -28,6 +29,9 @@ let view model dispatch =
         | CollapsibleTree -> 
             CollapsibleTree.Views.view model.CollapsibleTree 
                 (CollapsibleTreeMsg >> dispatch)
+        | AdjacencyMatrix -> 
+            AdjacencyMatrix.Views.view model.AdjacencyMatrix 
+                (AdjacencyMatrixMsg >> dispatch)
     div [] 
         [ div [ ClassName "navbar-bg" ] 
               [ div [ ClassName "container" ] [ renderNavbar ] ]

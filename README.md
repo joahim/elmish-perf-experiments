@@ -5,7 +5,7 @@ To run the project:
 ```sh
 yarn install
 cd src
-dotner restore
+dotnet restore
 dotnet fable yarn-run start
 ```
 
