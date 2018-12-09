@@ -14,7 +14,7 @@ let pageParser : Parser<Page -> Page, Page> =
 
 let urlUpdate (result : Option<Page>) model =
     match result with
-    | None -> 
+    | None ->
         console.error ("Error parsing URL")
         model, Navigation.modifyUrl (toHash model.CurrentPage)
     | Some page -> { model with CurrentPage = page }, Cmd.none
@@ -25,13 +25,12 @@ let init result =
         CollapsibleTree.State.init()
     let (adjacencyMatrixModel, adjacencyMatrixCmd) =
         AdjacencyMatrix.State.init()
-    
     let (model, cmd) =
         urlUpdate result { CurrentPage = SortableTable
                            Table = tableModel
                            CollapsibleTree = collapsibleTreeModel
                            AdjacencyMatrix = adjacencyMatrixModel }
-    model, 
+    model,
     Cmd.batch [ cmd
                 Cmd.map TableMsg tableCmd
                 Cmd.map CollapsibleTreeMsg collapsibleTreeCmd
@@ -39,14 +38,14 @@ let init result =
 
 let update msg model =
     match msg with
-    | TableMsg msg -> 
+    | TableMsg msg ->
         let (model', cmd) = Table.State.update msg model.Table
         { model with Table = model' }, Cmd.map TableMsg cmd
-    | CollapsibleTreeMsg msg -> 
+    | CollapsibleTreeMsg msg ->
         let (model', cmd) =
             CollapsibleTree.State.update msg model.CollapsibleTree
         { model with CollapsibleTree = model' }, Cmd.map CollapsibleTreeMsg cmd
-    | AdjacencyMatrixMsg msg -> 
+    | AdjacencyMatrixMsg msg ->
         let (model', cmd) =
             AdjacencyMatrix.State.update msg model.AdjacencyMatrix
         { model with AdjacencyMatrix = model' }, Cmd.map AdjacencyMatrixMsg cmd

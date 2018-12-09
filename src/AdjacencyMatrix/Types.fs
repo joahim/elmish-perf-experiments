@@ -1,5 +1,12 @@
 module AdjacencyMatrix.Types
 
-type Model = Unit
+type Position =
+    | Left
+    | Right
 
-type Msg = Empty
+type Model = {
+    Position : Position
+}
+
+type Msg =
+    Animate
