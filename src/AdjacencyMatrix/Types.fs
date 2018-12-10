@@ -11,12 +11,16 @@ type Node = {
     Name : string
 }
 
-type Cell = float option
+type Cell = {
+    Row : int
+    Column : int
+    Value: float
+}
 
 type Data =
     { Rows : Node list
       Columns : Node list
-      Matrix : Cell array array }
+      Cells : Cell list }
 
 let nodesOfValues values =
     values

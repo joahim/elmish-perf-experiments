@@ -6,21 +6,24 @@ open AdjacencyMatrix.Types
 let init() =
     let data =
         let rows = [ 1..15 ] |> List.map string
-        let columns = [ 'A' .. 'R' ] |> List.map string
-        let matrix =
-            rows
-            |> List.map (fun _ ->
-                columns
-                |> List.map (fun _ ->
+        let columns = [ 'A' .. 'O' ] |> List.map string
+        let cells =
+            seq {
+                for rowIndex in [ 0 .. rows.Length - 1 ] do
+                    for columnIndex in [ 0 .. columns.Length - 1 ] do
                     match System.Random().NextDouble() with
-                    | value when value < 0.1 -> None
-                    | value -> Some value)
-                |> Array.ofList)
-            |> Array.ofList
+                    | value when value > 0.1 ->
+                        yield {
+                            Row = rowIndex
+                            Column = columnIndex
+                            Value = value
+                        }
+                    | _ -> ()
+            } |> List.ofSeq
 
         { Rows = nodesOfValues rows
           Columns = nodesOfValues columns
-          Matrix = matrix
+          Cells = cells
         }
 
     let model = {

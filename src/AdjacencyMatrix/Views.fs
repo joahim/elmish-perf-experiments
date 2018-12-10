@@ -5,23 +5,15 @@ open Fable.Helpers.React.Props
 
 open AdjacencyMatrix.Types
 
-// let pixelsOfInt value =
-//     string value + "px"
-
-let renderCell (cellSize : int) rowIndex columnindex rowPosition columnPosition (cell : Cell) =
-    let fillOpacity =
-        match cell with
-        | None -> 0.0
-        | Some value -> value
-
-    rect [ Key (sprintf "%d-%d" columnindex rowIndex)
+let renderCell (cellSize : int) (cell : Cell) rowPosition columnPosition =
+    rect [ Key (sprintf "%d-%d" cell.Row cell.Column)
            Class "adjacency-matrix__cell"
            SVGAttr.Width cellSize
            SVGAttr.Height cellSize
-           SVGAttr.FillOpacity fillOpacity
+           SVGAttr.FillOpacity cell.Value
            Style [
                Transition "all 1s ease-in-out"
-               TransitionDelay (sprintf "%dms" (50 * (columnPosition + rowPosition)))
+               TransitionDelay (sprintf "%dms" (50 * (cell.Row + cell.Column)))
                Transform (sprintf "translate(%dpx, %dpx)" (columnPosition * cellSize) (rowPosition * cellSize))
            ] ] [ ]
 
@@ -38,14 +30,9 @@ let renderMatrix cellSize (data : Data) =
     let columnPositions = positionMap data.Columns
 
     let cells =
-        data.Matrix
-        |> Array.mapi (fun rowIndex row ->
-            row
-            |> Array.mapi (fun columnIndex cell ->
-                renderCell 50 rowIndex columnIndex rowPositions.[rowIndex] columnPositions.[columnIndex] cell
-            )
-        )
-        |> Array.collect id
+        data.Cells
+        |> List.map (fun cell ->
+            renderCell 50 cell rowPositions.[cell.Row] columnPositions.[cell.Column])
 
     svg [ Class "adjacency-matrix"
           SVGAttr.Width matrixWidth
