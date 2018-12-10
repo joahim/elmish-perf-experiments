@@ -15,12 +15,13 @@ let renderCell (cellSize : int) rowIndex columnindex rowPosition columnPosition 
         | Some value -> value
 
     rect [ Key (sprintf "%d-%d" columnindex rowIndex)
+           Class "adjacency-matrix__cell"
            SVGAttr.Width cellSize
            SVGAttr.Height cellSize
-           SVGAttr.Fill "hotpink"
            SVGAttr.FillOpacity fillOpacity
            Style [
                Transition "all 1s ease-in-out"
+               TransitionDelay (sprintf "%dms" (50 * (columnPosition + rowPosition)))
                Transform (sprintf "translate(%dpx, %dpx)" (columnPosition * cellSize) (rowPosition * cellSize))
            ] ] [ ]
 
@@ -28,22 +29,46 @@ let renderMatrix cellSize (data : Data) =
     let matrixWidth = data.Columns.Length * cellSize
     let matrixHeight = data.Rows.Length * cellSize
 
+    let positionMap nodes =
+        nodes
+        |> List.mapi (fun i el -> (el.Key, i))
+        |> Map.ofList
+
+    let rowPositions = positionMap data.Rows
+    let columnPositions = positionMap data.Columns
+
     let cells =
         data.Matrix
         |> Array.mapi (fun rowIndex row ->
             row
             |> Array.mapi (fun columnIndex cell ->
-                renderCell 50 rowIndex columnIndex rowIndex columnIndex cell
+                renderCell 50 rowIndex columnIndex rowPositions.[rowIndex] columnPositions.[columnIndex] cell
             )
         )
         |> Array.collect id
 
-    svg [ SVGAttr.Width matrixWidth
+    svg [ Class "adjacency-matrix"
+          SVGAttr.Width matrixWidth
           SVGAttr.Height matrixHeight
         ] cells
 
+let renderSortOrder sortOrder dispatch =
+    let order =
+        match sortOrder with
+        | Ascending ->
+            span [ OnClick (fun e -> dispatch SortOrderChanged) ] [ str "ascending" ]
+        | Descending ->
+            span [ OnClick (fun e -> dispatch SortOrderChanged) ] [ str "descending" ]
+    div [ Class "sort-order" ] [
+        str "Order by: "
+        order
+    ]
+
 let view (model : Model) dispatch =
-    div [] [ renderMatrix 50 model.Data ]
+    div [] [
+        renderSortOrder model.SortOrder dispatch
+        renderMatrix 50 model.Data
+    ]
 
 // let square position width height color =
 //     rect [ SVGAttr.X position.X

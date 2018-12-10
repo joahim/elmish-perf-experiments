@@ -1,13 +1,14 @@
 module AdjacencyMatrix.Types
+open Table.Types
+open Table.Types
 
-type Position =
-    | Left
-    | Right
+type SortOrder =
+    | Ascending
+    | Descending
 
 type Node = {
     Key : int
     Name : string
-    Position : int
 }
 
 type Cell = float option
@@ -21,13 +22,12 @@ let nodesOfValues values =
     values
     |> List.mapi (fun i value ->
         { Key = i
-          Name = value
-          Position = i } )
+          Name = value } )
 
 type Model = {
-    Position : Position
     Data : Data
+    SortOrder : SortOrder
 }
 
 type Msg =
-    Animate
+    | SortOrderChanged

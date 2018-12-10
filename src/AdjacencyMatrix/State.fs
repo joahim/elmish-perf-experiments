@@ -24,14 +24,36 @@ let init() =
         }
 
     let model = {
-        Position = Left
+        SortOrder = Ascending
         Data = data
     }
+
     model, Cmd.none
+
+let sortDataBy (data : Data) (sortOrder : SortOrder) =
+
+    let sortNodesBy (nodes : Node list) (sortOrder : SortOrder) =
+        match sortOrder with
+        | Ascending ->
+            nodes |> List.sortBy (fun node -> node.Key)
+        | Descending ->
+            nodes |> List.sortByDescending (fun node -> node.Key)
+
+    { data with
+        Rows = sortNodesBy data.Rows sortOrder
+        Columns = sortNodesBy data.Columns sortOrder
+    }
 
 let update msg (model : Model) =
     match msg with
-    | Animate ->
-        match model.Position with
-        | Left -> { model with Position = Right }, Cmd.none
-        | Right -> { model with Position = Left }, Cmd.none
+    | SortOrderChanged ->
+        let newSortOrder =
+            match model.SortOrder with
+            | Ascending -> Descending
+            | Descending -> Ascending
+        let newModel =
+             { model with
+                Data = sortDataBy model.Data newSortOrder
+                SortOrder = newSortOrder
+            }
+        newModel, Cmd.none
