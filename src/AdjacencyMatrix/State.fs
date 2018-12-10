@@ -4,7 +4,29 @@ open Elmish
 open AdjacencyMatrix.Types
 
 let init() =
-    let model = { Position = Left }
+    let data =
+        let rows = [ 1..15 ] |> List.map string
+        let columns = [ 'A' .. 'R' ] |> List.map string
+        let matrix =
+            rows
+            |> List.map (fun _ ->
+                columns
+                |> List.map (fun _ ->
+                    match System.Random().NextDouble() with
+                    | value when value < 0.1 -> None
+                    | value -> Some value)
+                |> Array.ofList)
+            |> Array.ofList
+
+        { Rows = nodesOfValues rows
+          Columns = nodesOfValues columns
+          Matrix = matrix
+        }
+
+    let model = {
+        Position = Left
+        Data = data
+    }
     model, Cmd.none
 
 let update msg (model : Model) =
