@@ -3,6 +3,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Shuffle.fs" />
     <!-- Global to the app -->
     <Compile Include="Global.fs" />
     <!-- SortableTable -->

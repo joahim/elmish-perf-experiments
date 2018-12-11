@@ -88,6 +88,8 @@ let renderSortOrder sortOrder dispatch =
             span [ OnClick (fun e -> dispatch SortOrderChanged) ] [ str "ascending" ]
         | Descending ->
             span [ OnClick (fun e -> dispatch SortOrderChanged) ] [ str "descending" ]
+        | Shuffle ->
+            span [ OnClick (fun e -> dispatch SortOrderChanged) ] [ str "shuffle" ]
     div [ Class "sort-order" ] [
         str "Order by: "
         order

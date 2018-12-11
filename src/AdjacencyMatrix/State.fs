@@ -38,6 +38,8 @@ let sortDataBy (data : Data) (sortOrder : SortOrder) =
             nodes |> List.sortBy (fun node -> node.Position)
         | Descending ->
             nodes |> List.sortByDescending (fun node -> node.Position)
+        | Shuffle ->
+            Shuffle.shuffleList nodes
 
     { data with
         Rows = sortNodesBy data.Rows sortOrder
@@ -50,7 +52,8 @@ let update msg (model : Model) =
         let newSortOrder =
             match model.SortOrder with
             | Ascending -> Descending
-            | Descending -> Ascending
+            | Descending -> Shuffle
+            | Shuffle -> Ascending
         let newModel =
              { model with
                 Data = sortDataBy model.Data newSortOrder

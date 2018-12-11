@@ -5,6 +5,7 @@ open Table.Types
 type SortOrder =
     | Ascending
     | Descending
+    | Shuffle
 
 type Node = {
     Name : string
