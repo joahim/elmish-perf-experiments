@@ -21,10 +21,7 @@ let init() =
                     | _ -> ()
             } |> List.ofSeq
 
-        { Rows = nodesOfValues rows
-          Columns = nodesOfValues columns
-          Cells = cells
-        }
+        createData rows columns cells
 
     let model = {
         SortOrder = Ascending
@@ -38,9 +35,9 @@ let sortDataBy (data : Data) (sortOrder : SortOrder) =
     let sortNodesBy (nodes : Node list) (sortOrder : SortOrder) =
         match sortOrder with
         | Ascending ->
-            nodes |> List.sortBy (fun node -> node.Key)
+            nodes |> List.sortBy (fun node -> node.Position)
         | Descending ->
-            nodes |> List.sortByDescending (fun node -> node.Key)
+            nodes |> List.sortByDescending (fun node -> node.Position)
 
     { data with
         Rows = sortNodesBy data.Rows sortOrder
