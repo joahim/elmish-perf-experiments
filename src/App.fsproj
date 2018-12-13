@@ -3,6 +3,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Tree.fs" />
     <Compile Include="Shuffle.fs" />
     <!-- Global to the app -->
     <Compile Include="Global.fs" />
@@ -18,6 +19,7 @@
     <Compile Include="CollapsibleTree/Views.fs" />
     <!-- AdjacencyMatrix -->
     <Compile Include="AdjacencyMatrix/Types.fs" />
+    <Compile Include="AdjacencyMatrix/Data.fs" />
     <Compile Include="AdjacencyMatrix/State.fs" />
     <Compile Include="AdjacencyMatrix/Views.fs" />
     <!--  App -->

@@ -1,6 +1,6 @@
 module AdjacencyMatrix.Types
-open Table.Types
-open Table.Types
+
+open Tree
 
 type SortOrder =
     | Ascending
@@ -9,7 +9,13 @@ type SortOrder =
 
 type Node = {
     Name : string
+}
+
+type EnumeratedNode = {
+    Name : string
+    Level : int
     Position : int
+    Visible  : bool
 }
 
 type Cell = {
@@ -25,22 +31,36 @@ type Cell = {
 // These Positions are referenced by Cells and used to pass the current Row/Column ordering to Cells.
 
 type Data = {
-    Rows : Node list
-    Columns : Node list
+    Rows : Tree<EnumeratedNode> list
+    Columns : Tree<EnumeratedNode> list
     Cells : Cell list }
 
-let createData rowLabels columnLabels cells =
+let createData (rows : Tree<Node> list) (columns : Tree<Node> list) cells =
 
-    let nodesOfLabels labels =
-        labels
-        |> List.mapi (fun i value ->
-            { Name = value
-              Position = i })
+    // Enumerate tree (depth first)
 
-    { Rows = nodesOfLabels rowLabels
-      Columns = nodesOfLabels columnLabels
+    let rec enumerateTree (counter : int) (tree : Tree<Node>) : (Tree<EnumeratedNode> * int) =
+        match tree with
+        | Leaf node ->
+            (Leaf { Name = node.Name ; Level = 1 ; Position = counter ; Visible = true}), counter + 1
+        | Branch (node, subTreeList) ->
+            let enumeratedNode = { Name = node.Name ; Level = 1 ; Position = counter ; Visible = true}
+            let enumeratedSubTreeList, newCounter =
+                subTreeList
+                |> List.fold (
+                    fun (acumulator, counter : int) tree ->
+                        let enumeratedTree, newCounter = enumerateTree counter tree
+                        in (List.append acumulator [enumeratedTree]), newCounter)
+                    (List.Empty, counter + 1)
+            Branch (enumeratedNode, enumeratedSubTreeList), newCounter
+
+    let enumerateTreeList (trees : List<Tree<Node>>) : List<Tree<EnumeratedNode>> =
+        let enumeratedTrees, counter = List.mapFold enumerateTree 0 trees
+        enumeratedTrees
+
+    { Rows = enumerateTreeList rows
+      Columns = enumerateTreeList columns
       Cells = cells }
-
 
 type Model = {
     Data : Data

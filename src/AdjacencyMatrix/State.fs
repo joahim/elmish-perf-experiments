@@ -5,23 +5,24 @@ open AdjacencyMatrix.Types
 
 let init() =
     let data =
-        let rows = [ 1..15 ] |> List.map string
-        let columns = [ 'A' .. 'O' ] |> List.map string
         let cells =
             seq {
-                for rowIndex in [ 0 .. rows.Length - 1 ] do
-                    for columnIndex in [ 0 .. columns.Length - 1 ] do
+                for rowIndex in [ 0 .. 14 - 1 ] do
+                    for columnIndex in [ 0 .. 14 - 1 ] do
                     match System.Random().NextDouble() with
-                    | value when value > 0.1 ->
+                    | value when value > 0.6 ->
                         yield {
                             Row = rowIndex
                             Column = columnIndex
-                            Value = value
+                            Value = System.Random().NextDouble()
                         }
                     | _ -> ()
             } |> List.ofSeq
 
-        createData rows columns cells
+        createData
+            [Data.row1 ; Data.row2]
+            [Data.col1 ; Data.col2]
+            cells
 
     let model = {
         SortOrder = Ascending
@@ -32,14 +33,17 @@ let init() =
 
 let sortDataBy (data : Data) (sortOrder : SortOrder) =
 
-    let sortNodesBy (nodes : Node list) (sortOrder : SortOrder) =
+    let sortNodesBy tree (sortOrder : SortOrder) =
         match sortOrder with
         | Ascending ->
-            nodes |> List.sortBy (fun node -> node.Position)
+            tree
+            // nodes |> List.sortBy (fun node -> node.Position)
         | Descending ->
-            nodes |> List.sortByDescending (fun node -> node.Position)
+            tree
+            // nodes |> List.sortByDescending (fun node -> node.Position)
         | Shuffle ->
-            Shuffle.shuffleList nodes
+            tree
+            // Shuffle.shuffleList nodes
 
     { data with
         Rows = sortNodesBy data.Rows sortOrder

@@ -5,80 +5,95 @@ open Fable.Helpers.React.Props
 
 open AdjacencyMatrix.Types
 
-let renderCell (cellSize : int) (cell : Cell) rowOffset columnOffset rowPosition columnPosition =
-    rect [ Class "adjacency-matrix__cell"
-           SVGAttr.Width cellSize
-           SVGAttr.Height cellSize
-           SVGAttr.FillOpacity cell.Value
-           Style [ Transition "all 1s ease-in-out"
-                   TransitionDelay (sprintf "%dms" (50 * (cell.Row + cell.Column)))
-                   Transform (sprintf "translate(%dpx, %dpx)"
-                             ((columnPosition * cellSize) + rowOffset)
-                             ((rowPosition * cellSize) + columnOffset))
-           ] ] [ ]
+let renderRect className xPosition yPosition width height opacity delay children =
+    rect [
+        Class className
+        SVGAttr.Width width
+        SVGAttr.Height height
+        SVGAttr.FillOpacity opacity
+        SVGAttr.Transform (sprintf "translate(%d, %d)" xPosition yPosition)
+        Style [
+            Transition "all 1s ease-in-out"
+            TransitionDelay (sprintf "%dms" (50 * delay)) ] ]
+        children
 
 let renderMatrix cellSize (data : Data) =
-    let rowLabelSize = 50
-    let rowLabelOffset = 10
-    let rowOffset = rowLabelSize + rowLabelOffset
+    let labelPadding = 10
+    let cellPadding = 2
 
-    let columnLabelSize = 50
-    let columnLabelOffset = 10
-    let columnOffset = columnLabelSize + columnLabelOffset
+    let rowLabelWidth = 80
+    let rowLabelMargin = 10
 
-    let matrixWidth = data.Columns.Length * cellSize
-    let matrixHeight = data.Rows.Length * cellSize
+    let columnLabelHeight = 80
+    let columnLabelMargin = 10
+
+    let rowNodes = data.Rows |> List.collect Tree.flatten
+    let columnNodes = data.Columns |> List.collect Tree.flatten
+
+    let matrixWidth = rowNodes.Length * (cellSize + cellPadding) - cellPadding
+    let matrixHeight = rowNodes.Length * (cellSize + cellPadding) - cellPadding
 
     let positionMap nodes =
         nodes
         |> List.mapi (fun i el -> (el.Position, i))
         |> Map.ofList
 
-    let rowPositionsMap = positionMap data.Rows
-    let columnPositionsMap = positionMap data.Columns
+    let rowPositionsMap = positionMap rowNodes
+    let columnPositionsMap = positionMap columnNodes
 
     let rowLabels =
-        data.Rows
+        rowNodes
         |> List.sortBy (fun row -> row.Position)
         |> List.mapi (fun i row ->
-            text
-                [ Style
-                    [ Transition "all 1s ease-in-out"
-                      TransitionDelay (sprintf "%dms" (50 * rowPositionsMap.[i]))
-                      Transform (sprintf "translate(%fpx, %fpx)"
-                                (float rowLabelSize)
-                                ((float columnOffset) + (float rowPositionsMap.[i] + 0.5) * (float cellSize))) ] ]
-                [ str row.Name ])
+            g [
+                SVGAttr.Transform (sprintf "translate(%d, %d)" 0 (rowPositionsMap.[i] * (cellSize + cellPadding)))
+                Style [
+                    Transition "all 1s ease-in-out"
+                    TransitionDelay (sprintf "%dms" (50 * rowPositionsMap.[i])) ] ]
+              [
+                renderRect "" 0 0 rowLabelWidth cellSize 0.5 0 []
+                text [
+                    SVGAttr.X (rowLabelWidth - labelPadding)
+                    SVGAttr.Y ((float cellSize) * 0.5)
+                    ] [ str row.Name ]
+              ])
 
     let columnLabels =
-        data.Columns
+        columnNodes
         |> List.sortBy (fun column -> column.Position)
         |> List.mapi (fun i column ->
-            text
-                [ Style
-                    [ Transition "all 1s ease-in-out"
-                      TransitionDelay (sprintf "%dms" (50 * columnPositionsMap.[i]))
-                      Transform (sprintf "translate(%fpx, %fpx)"
-                                ((float rowOffset) + (float columnPositionsMap.[i] + 0.5) * (float cellSize))
-                                (float columnLabelSize)) ] ]
-                    [ str column.Name ] )
+            g [
+                SVGAttr.Transform (sprintf "translate(%d, %d)" (columnPositionsMap.[i] * (cellSize + cellPadding)) 0)
+                Style [
+                    Transition "all 1s ease-in-out"
+                    TransitionDelay (sprintf "%dms" (50 * columnPositionsMap.[i])) ] ]
+              [
+                renderRect "" 0 0 cellSize columnLabelHeight 0.5 0 []
+                g [ SVGAttr.Transform (sprintf "translate(%f %d)" (float cellSize * 0.5) (columnLabelHeight - labelPadding)) ] [
+                    text [ SVGAttr.Transform (sprintf "rotate(-90)") ] [ str column.Name ]
+                ]
+              ])
 
     let cells =
         data.Cells
         |> List.map (fun cell ->
-            renderCell
-                cellSize cell
-                (rowLabelSize + rowLabelOffset)
-                (columnLabelSize + columnLabelOffset)
-                rowPositionsMap.[cell.Row]
-                columnPositionsMap.[cell.Column])
+            renderRect
+                "adjacency-matrix__cell"
+                (columnPositionsMap.[cell.Column] * (cellSize + cellPadding))
+                (rowPositionsMap.[cell.Row] * (cellSize + cellPadding))
+                cellSize cellSize cell.Value
+                (cell.Row + cell.Column)
+                [])
 
     svg [ Class "adjacency-matrix"
-          SVGAttr.Width (matrixWidth + rowLabelSize + rowLabelOffset)
-          SVGAttr.Height (matrixHeight + columnLabelSize + columnLabelOffset)
-        ] [ g [ Class "adjacency-matrix__row-labels" ] rowLabels
-            g [ Class "adjacency-matrix__column-labels" ] columnLabels
-            g [ Class "adjacency-matrix__cells" ] cells
+          SVGAttr.Width (matrixWidth + rowLabelWidth + rowLabelMargin)
+          SVGAttr.Height (matrixHeight + columnLabelHeight + columnLabelMargin)
+        ] [ g [ Class "adjacency-matrix__row-labels"
+                SVGAttr.Transform (sprintf "translate(%d, %d)" 0 (columnLabelHeight + columnLabelMargin)) ] rowLabels
+            g [ Class "adjacency-matrix__column-labels"
+                SVGAttr.Transform (sprintf "translate(%d, %d)" (rowLabelWidth + rowLabelMargin) 0) ] columnLabels
+            g [ Class "adjacency-matrix__cells"
+                SVGAttr.Transform (sprintf "translate(%d, %d)" (rowLabelWidth + rowLabelMargin) (columnLabelHeight + columnLabelMargin)) ] cells
         ]
 
 let renderSortOrder sortOrder dispatch =
