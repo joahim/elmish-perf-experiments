@@ -7,6 +7,8 @@ type SortOrder =
     | DefaultReverse
     | EdgeCount
 
+type SortOrderHierarchy = bool
+
 type Node = {
     Id : string
     Name : string
@@ -85,7 +87,9 @@ let createData (rows : Tree<Node> list) (columns : Tree<Node> list) (cells : Cel
 type Model = {
     Data : Data
     SortOrder : SortOrder
+    SortOrderHierarchy : SortOrderHierarchy
 }
 
 type Msg =
     | SortOrderChanged
+    | SortOrderHierarchyChanged

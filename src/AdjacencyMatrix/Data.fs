@@ -82,7 +82,11 @@ let col3 =
 
 let cells =
     [ { Row = "1-1" ; Column = "1-2" ; Value = 1.0 }
-      { Row = "2" ; Column = "2" ; Value = 0.8 }
-      { Row = "3" ; Column = "3" ; Value = 0.6 }
-      { Row = "3" ; Column = "1-2" ; Value = 0.4 }
+      { Row = "2" ; Column = "2" ; Value = 0.9 }
+      { Row = "3" ; Column = "3" ; Value = 0.8 }
+      { Row = "1-1" ; Column = "3" ; Value = 0.8 }
+      { Row = "3" ; Column = "1-2" ; Value = 0.7 }
+      { Row = "3" ; Column = "1-2-3-1" ; Value = 0.6 }
+      { Row = "1-1" ; Column = "1-2-3-1" ; Value = 0.5 }
+      { Row = "1-2-2" ; Column = "1-2-3-1" ; Value = 0.4 }
     ]

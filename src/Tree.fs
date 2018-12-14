@@ -1,4 +1,5 @@
 module Tree
+open System
 
     type Tree<'Node> =
         | Leaf of 'Node
@@ -31,6 +32,21 @@ module Tree
             (fun acc node -> node :: acc)
             [] tree
         |> List.rev
+
+    let getRootNode (tree : Tree<'Node>) : 'Node =
+        match tree with
+        | Leaf node -> node
+        | Branch (node, _) -> node
+
+    let rec sortByDescending (f : 'Node -> 'Key) (tree : Tree<'Node>) : Tree<'Node> =
+        match tree with
+        | Leaf node ->
+            Leaf node
+        | Branch (node, subtrees) ->
+            let sortdedSubtrees =
+                subtrees
+                |> List.sortByDescending (getRootNode >> f)
+            Branch (node, sortdedSubtrees |> List.map (sortByDescending f))
 
     // let rec enumerate (level : int) (counter : int) (tree : Tree<'Node>) : (Tree<EnumeratedNode> * int) =
     //     match tree with

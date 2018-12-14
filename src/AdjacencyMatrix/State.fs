@@ -2,6 +2,7 @@ module AdjacencyMatrix.State
 
 open Elmish
 open AdjacencyMatrix.Types
+open System
 
 let init() =
     let data =
@@ -11,8 +12,9 @@ let init() =
             Data.cells
 
     let model = {
-        SortOrder = Default
         Data = data
+        SortOrder = Default
+        SortOrderHierarchy = false
     }
 
     model, Cmd.none
@@ -30,8 +32,10 @@ let update msg (model : Model) =
                 SortOrder = newSortOrder
             }
         newModel, Cmd.none
+    | SortOrderHierarchyChanged ->
+        { model with SortOrderHierarchy = not model.SortOrderHierarchy }, Cmd.none
 
-let sortDataBy (data : Data) (sortOrder : SortOrder) =
+let sortDataBy (data : Data) (sortOrder : SortOrder) (sortOrderHierarchy : SortOrderHierarchy) =
 
     match sortOrder with
     | Default ->
@@ -41,5 +45,19 @@ let sortDataBy (data : Data) (sortOrder : SortOrder) =
         ( data.Rows |> List.collect Tree.flatten |> List.rev,
           data.Columns |> List.collect Tree.flatten |> List.rev)
     | EdgeCount ->
-        ( data.Rows |> List.collect Tree.flatten |> List.sortByDescending (fun n -> n.EdgeCount),
-          data.Columns |> List.collect Tree.flatten |> List.sortByDescending (fun n -> n.EdgeCount))
+
+        let sort node = node.EdgeCount
+
+        match sortOrderHierarchy with
+        | false ->
+            ( data.Rows |> List.collect Tree.flatten |> List.sortByDescending sort,
+              data.Columns |> List.collect Tree.flatten |> List.sortByDescending sort)
+        | true ->
+            ( data.Rows
+              |> List.map (Tree.sortByDescending sort)
+              |> List.sortByDescending (Tree.getRootNode >> sort)
+              |> List.collect Tree.flatten,
+              data.Columns
+              |> List.map (Tree.sortByDescending sort)
+              |> List.sortByDescending (Tree.getRootNode >> sort)
+              |> List.collect Tree.flatten)

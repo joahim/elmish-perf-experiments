@@ -16,7 +16,7 @@ let renderRect xPosition yPosition width height (opacity : float) (delay : int) 
             TransitionDelay (sprintf "%dms" (50 * delay)) ] ]
         children
 
-let renderMatrix cellSize (data : Data) (sortOrder : SortOrder)=
+let renderMatrix cellSize (data : Data) (sortOrder : SortOrder) (sortOrderHierarchy : SortOrderHierarchy) =
     let labelPadding = 8
     let cellPadding = 1
     let levelSizeDecrement = 15
@@ -33,7 +33,7 @@ let renderMatrix cellSize (data : Data) (sortOrder : SortOrder)=
     let matrixWidth = columnNodes.Length * (cellSize + cellPadding) - cellPadding
     let matrixHeight = rowNodes.Length * (cellSize + cellPadding) - cellPadding
 
-    let orderedRowNodes, orderedColumnNodes = State.sortDataBy data sortOrder
+    let orderedRowNodes, orderedColumnNodes = State.sortDataBy data sortOrder sortOrderHierarchy
 
     let nodePositionsMap nodes =
         nodes
@@ -100,22 +100,26 @@ let renderMatrix cellSize (data : Data) (sortOrder : SortOrder)=
                 SVGAttr.Transform (sprintf "translate(%d, %d)" (rowLabelWidth + rowLabelMargin) (columnLabelHeight + columnLabelMargin)) ] cells
         ]
 
-let renderSortOrder sortOrder dispatch =
-    let order =
+let renderSortOrder sortOrder sortOrderHierarchy dispatch =
+    let sortOrderElement =
         match sortOrder with
         | Default ->
-            span [ OnClick (fun e -> dispatch SortOrderChanged) ] [ str "default" ]
+            span [ OnClick (fun e -> dispatch SortOrderChanged) ] [ str "DEFAULT" ]
         | DefaultReverse ->
-            span [ OnClick (fun e -> dispatch SortOrderChanged) ] [ str "default reverse" ]
+            span [ OnClick (fun e -> dispatch SortOrderChanged) ] [ str "DEFAULT REVERSED" ]
         | EdgeCount ->
-            span [ OnClick (fun e -> dispatch SortOrderChanged) ] [ str "default edge count" ]
+            span [ OnClick (fun e -> dispatch SortOrderChanged) ] [ str "EDGE COUNT" ]
+
     div [ Class "sort-order" ] [
-        str "Order by: "
-        order
-    ]
+        div [ ] [ str "Order by: " ; sortOrderElement ]
+        div [ ] [
+            str "Obey hierarchy when ordering: "
+            input [
+                Type "checkbox" ; Checked sortOrderHierarchy
+                OnChange (fun e -> dispatch SortOrderHierarchyChanged) ] ] ]
 
 let view (model : Model) dispatch =
     div [] [
-        renderSortOrder model.SortOrder dispatch
-        renderMatrix 30 model.Data model.SortOrder
+        renderSortOrder model.SortOrder model.SortOrderHierarchy dispatch
+        renderMatrix 30 model.Data model.SortOrder model.SortOrderHierarchy
     ]
