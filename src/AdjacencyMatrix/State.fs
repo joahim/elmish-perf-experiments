@@ -8,7 +8,7 @@ let init() =
         createData
             [Data.row1 ; Data.row2 ; Data.row3]
             [Data.col1 ; Data.col2 ; Data.col3]
-            (Data.cells |> List.map (fun (row, column, value) -> { Row = row ; Column = column ; Value = value }))
+            Data.cells
 
     let model = {
         SortOrder = Default
@@ -23,7 +23,8 @@ let update msg (model : Model) =
         let newSortOrder =
             match model.SortOrder with
             | Default -> DefaultReverse
-            | DefaultReverse -> Default
+            | DefaultReverse -> EdgeCount
+            | EdgeCount -> Default
         let newModel =
              { model with
                 SortOrder = newSortOrder
@@ -39,3 +40,6 @@ let sortDataBy (data : Data) (sortOrder : SortOrder) =
     | DefaultReverse ->
         ( data.Rows |> List.collect Tree.flatten |> List.rev,
           data.Columns |> List.collect Tree.flatten |> List.rev)
+    | EdgeCount ->
+        ( data.Rows |> List.collect Tree.flatten |> List.sortByDescending (fun n -> n.EdgeCount),
+          data.Columns |> List.collect Tree.flatten |> List.sortByDescending (fun n -> n.EdgeCount))

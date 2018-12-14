@@ -107,6 +107,8 @@ let renderSortOrder sortOrder dispatch =
             span [ OnClick (fun e -> dispatch SortOrderChanged) ] [ str "default" ]
         | DefaultReverse ->
             span [ OnClick (fun e -> dispatch SortOrderChanged) ] [ str "default reverse" ]
+        | EdgeCount ->
+            span [ OnClick (fun e -> dispatch SortOrderChanged) ] [ str "default edge count" ]
     div [ Class "sort-order" ] [
         str "Order by: "
         order
