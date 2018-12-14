@@ -3,24 +3,24 @@ module AdjacencyMatrix.Types
 open Tree
 
 type SortOrder =
-    | Ascending
-    | Descending
-    | Shuffle
+    | Default
+    | DefaultReverse
 
 type Node = {
+    Id : string
     Name : string
 }
 
-type EnumeratedNode = {
+type MatrixNode = {
+    Id : string
     Name : string
     Level : int
-    Position : int
     Visible  : bool
 }
 
 type Cell = {
-    Row : int
-    Column : int
+    Row : string
+    Column : string
     Value: float
 }
 
@@ -31,35 +31,32 @@ type Cell = {
 // These Positions are referenced by Cells and used to pass the current Row/Column ordering to Cells.
 
 type Data = {
-    Rows : Tree<EnumeratedNode> list
-    Columns : Tree<EnumeratedNode> list
+    Rows : Tree<MatrixNode> list
+    Columns : Tree<MatrixNode> list
     Cells : Cell list }
 
-let createData (rows : Tree<Node> list) (columns : Tree<Node> list) cells =
+let createData (rows : Tree<Node> list) (columns : Tree<Node> list) (cells : Cell list) =
 
-    // Enumerate tree (depth first)
-
-    let rec enumerateTree (counter : int) (tree : Tree<Node>) : (Tree<EnumeratedNode> * int) =
+    let rec createTree (level : int) (tree : Tree<Node>) : Tree<MatrixNode> =
         match tree with
         | Leaf node ->
-            (Leaf { Name = node.Name ; Level = 1 ; Position = counter ; Visible = true}), counter + 1
-        | Branch (node, subTreeList) ->
-            let enumeratedNode = { Name = node.Name ; Level = 1 ; Position = counter ; Visible = true}
-            let enumeratedSubTreeList, newCounter =
-                subTreeList
+            Leaf { Id = node.Id ; Name = node.Name ; Level = level ; Visible = true}
+        | Branch (node, subTrees) ->
+            let matrixNode = { Id = node.Id ; Name = node.Name ; Level = level ; Visible = true}
+            let matrixSubTrees =
+                subTrees
                 |> List.fold (
-                    fun (acumulator, counter : int) tree ->
-                        let enumeratedTree, newCounter = enumerateTree counter tree
-                        in (List.append acumulator [enumeratedTree]), newCounter)
-                    (List.Empty, counter + 1)
-            Branch (enumeratedNode, enumeratedSubTreeList), newCounter
+                    fun acumulator tree ->
+                        let matrixTree = createTree (level + 1) tree
+                        in List.append acumulator [matrixTree])
+                    List.Empty
+            Branch (matrixNode, matrixSubTrees)
 
-    let enumerateTreeList (trees : List<Tree<Node>>) : List<Tree<EnumeratedNode>> =
-        let enumeratedTrees, counter = List.mapFold enumerateTree 0 trees
-        enumeratedTrees
+    let createTreeList (trees : List<Tree<Node>>) : List<Tree<MatrixNode>> =
+        trees |> List.map (createTree 0)
 
-    { Rows = enumerateTreeList rows
-      Columns = enumerateTreeList columns
+    { Rows = createTreeList rows
+      Columns = createTreeList columns
       Cells = cells }
 
 type Model = {

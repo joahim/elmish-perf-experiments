@@ -5,9 +5,8 @@ open Fable.Helpers.React.Props
 
 open AdjacencyMatrix.Types
 
-let renderRect className xPosition yPosition width height opacity delay children =
+let renderRect xPosition yPosition width height (opacity : float) (delay : int) children =
     rect [
-        Class className
         SVGAttr.Width width
         SVGAttr.Height height
         SVGAttr.FillOpacity opacity
@@ -17,41 +16,45 @@ let renderRect className xPosition yPosition width height opacity delay children
             TransitionDelay (sprintf "%dms" (50 * delay)) ] ]
         children
 
-let renderMatrix cellSize (data : Data) =
-    let labelPadding = 10
-    let cellPadding = 2
+let renderMatrix cellSize (data : Data) (sortOrder : SortOrder)=
+    let labelPadding = 8
+    let cellPadding = 1
+    let levelSizeDecrement = 15
 
-    let rowLabelWidth = 80
-    let rowLabelMargin = 10
+    let rowLabelWidth = 140
+    let rowLabelMargin = 1
 
-    let columnLabelHeight = 80
-    let columnLabelMargin = 10
+    let columnLabelHeight = 140
+    let columnLabelMargin = 1
 
     let rowNodes = data.Rows |> List.collect Tree.flatten
     let columnNodes = data.Columns |> List.collect Tree.flatten
 
-    let matrixWidth = rowNodes.Length * (cellSize + cellPadding) - cellPadding
+    let matrixWidth = columnNodes.Length * (cellSize + cellPadding) - cellPadding
     let matrixHeight = rowNodes.Length * (cellSize + cellPadding) - cellPadding
 
-    let positionMap nodes =
+    let orderedRowNodes, orderedColumnNodes = State.sortDataBy data sortOrder
+
+    let nodePositionsMap nodes =
         nodes
-        |> List.mapi (fun i el -> (el.Position, i))
+        |> List.mapi (fun i el -> (el.Id, i))
         |> Map.ofList
 
-    let rowPositionsMap = positionMap rowNodes
-    let columnPositionsMap = positionMap columnNodes
+    let rowPositionsMap = nodePositionsMap orderedRowNodes
+    let columnPositionsMap = nodePositionsMap orderedColumnNodes
 
     let rowLabels =
         rowNodes
-        |> List.sortBy (fun row -> row.Position)
-        |> List.mapi (fun i row ->
+        |> List.map (fun row ->
+            let sizeDecrement = levelSizeDecrement * row.Level
             g [
-                SVGAttr.Transform (sprintf "translate(%d, %d)" 0 (rowPositionsMap.[i] * (cellSize + cellPadding)))
+                Class (sprintf "adjacency-matrix__label level-%d" row.Level)
+                SVGAttr.Transform (sprintf "translate(%d, %d)" 0 (rowPositionsMap.[row.Id] * (cellSize + cellPadding)))
                 Style [
                     Transition "all 1s ease-in-out"
-                    TransitionDelay (sprintf "%dms" (50 * rowPositionsMap.[i])) ] ]
+                    TransitionDelay (sprintf "%dms" (50 * rowPositionsMap.[row.Id])) ] ]
               [
-                renderRect "" 0 0 rowLabelWidth cellSize 0.5 0 []
+                renderRect sizeDecrement 0 (rowLabelWidth - sizeDecrement) cellSize 1.0 0 []
                 text [
                     SVGAttr.X (rowLabelWidth - labelPadding)
                     SVGAttr.Y ((float cellSize) * 0.5)
@@ -60,15 +63,16 @@ let renderMatrix cellSize (data : Data) =
 
     let columnLabels =
         columnNodes
-        |> List.sortBy (fun column -> column.Position)
         |> List.mapi (fun i column ->
+            let sizeDecrement = levelSizeDecrement * column.Level
             g [
-                SVGAttr.Transform (sprintf "translate(%d, %d)" (columnPositionsMap.[i] * (cellSize + cellPadding)) 0)
+                Class (sprintf "adjacency-matrix__label level-%d" column.Level)
+                SVGAttr.Transform (sprintf "translate(%d, %d)" (columnPositionsMap.[column.Id] * (cellSize + cellPadding)) 0)
                 Style [
                     Transition "all 1s ease-in-out"
-                    TransitionDelay (sprintf "%dms" (50 * columnPositionsMap.[i])) ] ]
+                    TransitionDelay (sprintf "%dms" (50 * columnPositionsMap.[column.Id])) ] ]
               [
-                renderRect "" 0 0 cellSize columnLabelHeight 0.5 0 []
+                renderRect 0 sizeDecrement cellSize (columnLabelHeight - sizeDecrement) 1.0 0 []
                 g [ SVGAttr.Transform (sprintf "translate(%f %d)" (float cellSize * 0.5) (columnLabelHeight - labelPadding)) ] [
                     text [ SVGAttr.Transform (sprintf "rotate(-90)") ] [ str column.Name ]
                 ]
@@ -77,13 +81,13 @@ let renderMatrix cellSize (data : Data) =
     let cells =
         data.Cells
         |> List.map (fun cell ->
-            renderRect
-                "adjacency-matrix__cell"
-                (columnPositionsMap.[cell.Column] * (cellSize + cellPadding))
-                (rowPositionsMap.[cell.Row] * (cellSize + cellPadding))
-                cellSize cellSize cell.Value
-                (cell.Row + cell.Column)
-                [])
+            g [ Class "adjacency-matrix__cell" ] [
+                renderRect
+                    (columnPositionsMap.[cell.Column] * (cellSize + cellPadding))
+                    (rowPositionsMap.[cell.Row] * (cellSize + cellPadding))
+                    cellSize cellSize cell.Value
+                    ((float (columnPositionsMap.[cell.Column] + rowPositionsMap.[cell.Row])) / 2.0 |> int)
+                    []])
 
     svg [ Class "adjacency-matrix"
           SVGAttr.Width (matrixWidth + rowLabelWidth + rowLabelMargin)
@@ -99,12 +103,10 @@ let renderMatrix cellSize (data : Data) =
 let renderSortOrder sortOrder dispatch =
     let order =
         match sortOrder with
-        | Ascending ->
-            span [ OnClick (fun e -> dispatch SortOrderChanged) ] [ str "ascending" ]
-        | Descending ->
-            span [ OnClick (fun e -> dispatch SortOrderChanged) ] [ str "descending" ]
-        | Shuffle ->
-            span [ OnClick (fun e -> dispatch SortOrderChanged) ] [ str "shuffle" ]
+        | Default ->
+            span [ OnClick (fun e -> dispatch SortOrderChanged) ] [ str "default" ]
+        | DefaultReverse ->
+            span [ OnClick (fun e -> dispatch SortOrderChanged) ] [ str "default reverse" ]
     div [ Class "sort-order" ] [
         str "Order by: "
         order
@@ -113,5 +115,5 @@ let renderSortOrder sortOrder dispatch =
 let view (model : Model) dispatch =
     div [] [
         renderSortOrder model.SortOrder dispatch
-        renderMatrix 50 model.Data
+        renderMatrix 30 model.Data model.SortOrder
     ]
